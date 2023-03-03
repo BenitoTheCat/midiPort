@@ -1,110 +1,83 @@
-from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QPushButton,
-    QMainWindow,
-    QComboBox,
-    QComboBox,
-    QMainWindow,
-    QApplication,
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
-    QStyle,
-)
+from MainWindow import MainWindow
+from DataJson import DataJson
 import sys
 import json
 
 
-class MainWindow:
+class MainClass:
     def __init__(self):
         super().__init__()
 
-        app = QApplication(sys.argv)
-        window = QMainWindow()
-        container = QWidget()
-        window.setWindowTitle("My First App")
+        # Midi init
 
-        self.cbInput = QComboBox()
-        self.cbInput.addItem("One")
-        self.cbInput.addItem("Two")
-        self.cbInput.addItem("Three")
-        self.cbInput.addItem("Four")
+        self.list = ["One", "Two", "Three", "Four"]
 
-        self.cbInput.currentTextChanged.connect(self.setInputChange)
+        # Settings init
 
-        self.cbOutput = QComboBox()
-        self.cbOutput.addItem("One")
-        self.cbOutput.addItem("Two")
-        self.cbOutput.addItem("Three")
-        self.cbOutput.addItem("Four")
+        self.dj = DataJson()
 
-        self.cbOutput.currentTextChanged.connect(self.setOutputChange)
+        self.setting = self.dj.getSetting()
+        self.input = self.dj.getInput()
+        self.output = self.dj.getOutput()
 
-        bstart = QPushButton("Start")
-        bstop = QPushButton("Stop")
+        print("MainClass: ", self.setting, self.input, self.output)
 
-        icons = sorted(
-            [attr for attr in dir(QStyle.StandardPixmap) if attr.startswith("SP_")]
-        )
+        # Gui init
 
-        btnContainer = QWidget()
-        btn = QPushButton("Save")
-        btn.setIcon(
-            container.style().standardIcon(QStyle.StandardPixmap.SP_DialogSaveButton)
-        )
+        self.app = MainWindow(self.list)
 
-        bstart.clicked.connect(self.startButton)
-        bstop.clicked.connect(self.stopButton)
+        self.app.getStartButton().clicked.connect(self.startButton)
+        self.app.getStopButton().clicked.connect(self.stopButton)
+        self.app.getSaveButton().clicked.connect(self.saveButton)
 
-        layoutVInput = QVBoxLayout()
-        layoutVOutput = QVBoxLayout()
-        layoutHCombos = QHBoxLayout()
-        layoutHButton = QHBoxLayout()
-        layoutV = QVBoxLayout()
+        self.app.getComboInput().currentTextChanged.connect(self.setInputChange)
+        self.app.getComboOutput().currentTextChanged.connect(self.setOutputChange)
 
-        linput = QLabel("Input")
-        loutput = QLabel("Output")
+        # Set settings
+        self.setSetting(self.list, self.input, self.output)
 
-        layoutVInput.addWidget(linput)
-        layoutVInput.addWidget(self.cbInput)
-
-        layoutVOutput.addWidget(loutput)
-        layoutVOutput.addWidget(self.cbOutput)
-
-        layoutHCombos.addLayout(layoutVInput)
-        layoutHCombos.addLayout(layoutVOutput)
-
-        layoutHButton.addWidget(bstart)
-        layoutHButton.addWidget(bstop)
-
-        layoutV.addWidget(btn)
-        layoutV.addLayout(layoutHCombos)
-        layoutV.addLayout(layoutHButton)
-
-        # container.addLoayout(layoutH)
-        container.setLayout(layoutV)
-        # container.setLayout(layoutH)
-        # container.setLayout(layoutV)
-
-        window.setCentralWidget(container)
-
-        window.show()
-
-        app.exec()
+        self.app.getApp().exec()
 
     def startButton(self):
-        print("start")
+        print("Main start")
 
     def stopButton(self):
-        print("stop")
+        print("Main stop")
+
+    def saveButton(self):
+        self.setting = {"input": self.input, "output": self.output}
+        self.dj.setSetting(json.dumps(self.setting))
+        print("Main save")
 
     def setInputChange(self, s):
-        print("Input text: ", s)
+        self.input = s
+        print("Main Input text: ", s)
 
     def setOutputChange(self, s):
-        print("Output text: ", s)
+        self.output = s
+        print("Main Output text: ", s)
+
+    # check if input is in list
+    def checkInput(self, list, input):
+        for n in list:
+            if n == input:
+                return True
+        return False
+
+    # check if output is in list
+    def checkOutput(self, list, output):
+        for n in list:
+            if n == output:
+                return True
+        return False
+
+    def setSetting(self, list, input, output):
+        if self.checkInput(list, input):
+            self.app.getComboInput().setCurrentText(input)
+
+        if self.checkOutput(list, output):
+            self.app.getComboOutput().setCurrentText(output)
 
 
-mc = MainWindow()
+print("mainClass.py")
+mc = MainClass()
