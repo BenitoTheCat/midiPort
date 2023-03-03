@@ -18,7 +18,7 @@ import json
 
 
 class MainWindow:
-    def __init__(self, list=["1", "2", "3", "4"]):
+    def __init__(self, linput=["1", "2", "3", "4"], loutput=["1", "2", "3", "4"]):
         super().__init__()
 
         self.app = QApplication(sys.argv)
@@ -26,9 +26,9 @@ class MainWindow:
         self.container = QWidget()
         self.window.setWindowTitle("midiPort")
 
-        self.cbInput = self.setCombo(list)
+        self.cbInput = self.setCombo(linput)
 
-        self.cbOutput = self.setCombo(list)
+        self.cbOutput = self.setCombo(loutput)
 
         self.bStart = QPushButton("Start")
         self.bStop = QPushButton("Stop")

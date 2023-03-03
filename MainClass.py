@@ -1,5 +1,7 @@
+# https://stackoverflow.com/questions/71808759/reduce-latency-in-midi-gui
 from MainWindow import MainWindow
 from DataJson import DataJson
+from MidiClass import MidiClass
 import sys
 import json
 
@@ -10,7 +12,10 @@ class MainClass:
 
         # Midi init
 
-        self.list = ["One", "Two", "Three", "Four"]
+        self.midi = MidiClass()
+
+        self.linput = self.midi.getInportNames()
+        self.loutput = self.midi.getOutportNames()
 
         # Settings init
 
@@ -24,7 +29,7 @@ class MainClass:
 
         # Gui init
 
-        self.app = MainWindow(self.list)
+        self.app = MainWindow(self.linput, self.loutput)
 
         self.app.getStartButton().clicked.connect(self.startButton)
         self.app.getStopButton().clicked.connect(self.stopButton)
@@ -34,12 +39,13 @@ class MainClass:
         self.app.getComboOutput().currentTextChanged.connect(self.setOutputChange)
 
         # Set settings
-        self.setSetting(self.list, self.input, self.output)
+        self.setSetting(self.linput, self.input, self.loutput, self.output)
 
         self.app.getApp().exec()
 
     def startButton(self):
         print("Main start")
+        self.midi.startMidiHost()
 
     def stopButton(self):
         print("Main stop")
@@ -51,10 +57,12 @@ class MainClass:
 
     def setInputChange(self, s):
         self.input = s
+        self.midi.setInport(s)
         print("Main Input text: ", s)
 
     def setOutputChange(self, s):
         self.output = s
+        self.midi.setOutport(s)
         print("Main Output text: ", s)
 
     # check if input is in list
@@ -71,12 +79,19 @@ class MainClass:
                 return True
         return False
 
-    def setSetting(self, list, input, output):
-        if self.checkInput(list, input):
+    def setSetting(self, linput, input, loutput, output):
+        if self.checkInput(linput, input):
             self.app.getComboInput().setCurrentText(input)
+        else:
+            self.input = self.app.getComboInput().currentText()
 
-        if self.checkOutput(list, output):
+        if self.checkOutput(loutput, output):
             self.app.getComboOutput().setCurrentText(output)
+        else:
+            self.output = self.app.getComboOutput().currentText()
+
+        self.setting = {"input": self.input, "output": self.output}
+        self.midi.setMidiHost(self.input, self.output)
 
 
 print("mainClass.py")
