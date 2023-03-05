@@ -2,6 +2,7 @@
 from MainWindow import MainWindow
 from DataJson import DataJson
 from MidiClass import MidiClass
+from threading import Thread
 import sys
 import json
 
@@ -27,6 +28,10 @@ class MainClass:
 
         print("MainClass: ", self.setting, self.input, self.output)
 
+        # Thread init
+        self.running = False
+        self.thread = None
+
         # Gui init
 
         self.app = MainWindow(self.linput, self.loutput)
@@ -43,12 +48,30 @@ class MainClass:
 
         self.app.getApp().exec()
 
+    def createThread(self):
+        return Thread(target=self.startHost)
+
+    def startHost(self):
+        self.midi.startMidiHost()
+
     def startButton(self):
         print("Main start")
-        self.midi.startMidiHost()
+        if self.running:
+            return "Already running"
+
+        self.running = True
+        self.thread = self.createThread()
+        self.thread.daemon = True
+        self.thread.start()
+        return "OK"
 
     def stopButton(self):
         print("Main stop")
+        if self.running:
+            self.running = False
+            self.thread.join()
+            return "OK"
+        return "Not running"
 
     def saveButton(self):
         self.setting = {"input": self.input, "output": self.output}
