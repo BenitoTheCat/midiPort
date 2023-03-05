@@ -8,14 +8,22 @@ class MidiClass:
     def __init__(self):
         super().__init__()
 
-        self.inportNames = mido.get_input_names()
-        self.outportNames = mido.get_output_names()
+        self.inportNames = list(filter(self.notMicrosoft, mido.get_input_names()))
+        self.outportNames = list(filter(self.notMicrosoft,mido.get_output_names()))
 
         self.inport = None
         self.outport = None
 
         self.msglog = deque()
         self.echo_delay = 0
+        
+        self.running = False
+        
+    def setRunning(self, running):
+        self.running = running
+    
+    def getRunning(self):
+        return self.running
 
     def setInport(self, name):
         self.inport = mido.open_input(name)
@@ -30,11 +38,18 @@ class MidiClass:
         return self.outportNames
 
     def setMidiHost(self, inport, outport):
+        print ("setMidiHost", inport, outport)
         self.inport = mido.open_input(inport)
         self.outport = mido.open_output(outport)
+        
+    def notMicrosoft(self, name):
+        if name.find("Microsoft")>=0:
+            return False
+        else:
+            return True
 
     def startMidiHost(self):
-        while True:
+        while self.running:
             for msg in self.inport.iter_pending():
                 # msg = inport.receive()
                 if msg.type != "clock":
@@ -46,6 +61,7 @@ class MidiClass:
                 self.outport.send(self.msglog.popleft()["msg"])
 
             time.sleep(0.01)
+
 
 
 # print(mido.get_output_names())  # To list the output ports

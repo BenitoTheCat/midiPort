@@ -29,7 +29,6 @@ class MainClass:
         print("MainClass: ", self.setting, self.input, self.output)
 
         # Thread init
-        self.running = False
         self.thread = None
 
         # Gui init
@@ -56,10 +55,10 @@ class MainClass:
 
     def startButton(self):
         print("Main start")
-        if self.running:
+        if self.midi.getRunning():
             return "Already running"
 
-        self.running = True
+        self.midi.setRunning(True)
         self.thread = self.createThread()
         self.thread.daemon = True
         self.thread.start()
@@ -67,8 +66,8 @@ class MainClass:
 
     def stopButton(self):
         print("Main stop")
-        if self.running:
-            self.running = False
+        if self.midi.getRunning():
+            self.midi.setRunning(False)
             self.thread.join()
             return "OK"
         return "Not running"
